@@ -1,124 +1,71 @@
-
+const { flatten } = require('lodash');
 const { values, schema } = require('../data');
 
+const isSingle = tide => tide.every(block => !Array.isArray(block));
+const isProcessor = path => Array.isArray(path) &&
+	path.some(block => values[block]);
 
-let arr = [];
-function getValue(tide, result = []) {
-
-	if (typeof(tide) === 'string') {
-		result.push(tide);
-	} else if (Array.isArray(tide)) {
-		const newData = [];
-
-		for (let point of tide) {
-			if (Array.isArray(point)) {
-				newData.push(convert(point, []));
-			} else {
-				newData.push(tide);
-			}
-		}
-
-		for (let point of result) {
-
-		}
-
+const concat = (cur, arr) => {
+	if (typeof(arr) === 'string') {
+		return cur.length === 0
+			? [[arr]]
+			: cur.map(item => [...item, arr]);
 	}
 
-}
-
-
-
-function l(line) {
-
-	function convert(tide, result = []) {
-		if (Array.isArray(tide)) {
-			const buf = [];
-
-			for (let point of tide) {
-				buf.push(convert(point));
-			}
-
-			for (let point of buf) {
-				result.push(point);
-			}
-
-			console.log({result})
-			return buf;
-
-		} else if (tide) {
-			return tide;
-		}
+	if (isSingle(cur)) {
+		return arr.map(item => [...cur, item]);
 	}
 
+	return arr.reduce((p, block) =>
+			p.concat(cur.map(path => [...path, block]))
+		, []);
+};
 
-	for (let block of line) {
-
-	}
-}
 
 function convert(tide, result = []) {
 	if (Array.isArray(tide)) {
-		const buf = [];
+		if (isSingle(tide)) {
+			return concat(result, tide);
+		}
 
 		for (let point of tide) {
+			if (values[point] || isProcessor(point)) {
+				result = concat(result, point)
+					.map(path => path.some(block => Array.isArray(block))
+						? flatten(path)
+						: path
+					);
+
+				continue;
+			}
+
 			const block = convert(point, result);
 
-			if (typeof(block) === 'string') {
-				result.push(block);
+			if (typeof(point) === 'string') {
+				result = concat(result, block);
 			} else {
-				buf.push(block);
+				result = [...block];
 			}
 		}
 
-		const k = [];
-
-		for (let point of buf) {
-			result.push([ ...result, point]);
-		}
-
-		console.log({k, result})
 		return result;
-
 	} else if (tide) {
 		return tide;
 	}
 }
 
-console.log('schema', schema[0])
-convert(schema[0]);
+module.exports = (line, BCC) => {
+	const paths = convert(line);
 
+	for (let vector of BCC) {
+		const unavailableBlocks = vector
+			.filter(point => !point.isWork)
+			.map(point => point.block);
 
-function f(line) {
-	let result = [];
+		const availablePaths = paths.filter(path =>
+			!unavailableBlocks.some(block => path.includes(block))
+		);
 
-	for (let tide of line) {
-		if (Array.isArray(tide)) {
-			convert(result, tide);
-		} else {
-			result.push(tide);
-		}
-	}
-
-}
-
-
-module.exports = (line) => {
-	const result = [];
-
-	for (let tide of line) {
-
-		if (Array.isArray(tide)) {
-			const k = [];
-
-			for (let point of tide) {
-				k.push(convert(point, [...result]));
-			}
-
-			console.log({ k })
-		} else if (tide) {
-			result.push(tide);
-			console.log('tide: ', tide, result)
-		}
-
+		console.log(availablePaths, unavailableBlocks)
 	}
 };

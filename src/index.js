@@ -1,27 +1,27 @@
 
 const { schema, blocks } = require('./data');
 const combinations = require('./utils/combinations');
+const conditionLine = require('./utils/conditionLine');
 
 
 
-for (let i = 1; i <= 2; i++) {
+for (let i = 1; i <= 1; i++) {
 	const BCCs = combinations(blocks.length, i)
 		.map(vector => 
-			vector.map((value, index) => ({
-				value,
+			vector.map((isWork, index) => ({
+				isWork,
 				block: blocks[index],
 			}))
 		);
 
 	for (let line of schema) {
-
+		conditionLine(line, BCCs);
 	}
 
 }
 
 
 
-console.log(schema)
 // function getCombinations(l, n) {
 // 	const arrangement = Array
 // 		.from({ length: n }, (_, i) => l - i)
