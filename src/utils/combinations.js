@@ -2,7 +2,7 @@
 const { union } = require('lodash');
 
 
-module.exports = function getCombinations(l, n) {
+module.exports = (l, n) => {
 
 	const getSquare = length =>
 		Array.from({ length }, (_, i) =>

@@ -1,5 +1,5 @@
 
-const { schema, values, blocks } = require('./data');
+const { schema, blocks } = require('./data');
 const combinations = require('./utils/combinations');
 
 
