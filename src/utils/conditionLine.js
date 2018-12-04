@@ -54,8 +54,13 @@ function convert(tide, result = []) {
 	}
 }
 
-module.exports = (line, BCC) => {
-	const paths = convert(line);
+module.exports = (lines, BCC) => {
+	let result = [];
+	const paths = lines.reduce((p, line) => {
+		p.push(...convert(line));
+		return p;
+	}, []);
+
 
 	for (let vector of BCC) {
 		const unavailableBlocks = vector
@@ -66,6 +71,9 @@ module.exports = (line, BCC) => {
 			!unavailableBlocks.some(block => path.includes(block))
 		);
 
-		console.log(availablePaths, unavailableBlocks)
+		// TODO: when module is not work needing to separate powerful
+		// result = result.concat(availablePaths);
 	}
+
+	return result;
 };

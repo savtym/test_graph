@@ -14,10 +14,13 @@ for (let i = 1; i <= 1; i++) {
 			}))
 		);
 
-	for (let line of schema) {
-		conditionLine(line, BCCs);
-	}
+	let paths = [];
 
+	// for (let line of schema) {
+		paths = paths.concat(conditionLine(schema, BCCs));
+	// }
+
+	// console.log(paths)
 }
 
 
