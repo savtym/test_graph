@@ -1,5 +1,5 @@
-const { flatten } = require('lodash');
-const { values, schema } = require('../data');
+const { flatten, cloneDeep, omit } = require('lodash');
+const { values } = require('../data');
 
 const isSingle = tide => tide.every(block => !Array.isArray(block));
 const isProcessor = path => Array.isArray(path) &&
@@ -54,25 +54,60 @@ function convert(tide, result = []) {
 	}
 }
 
+
+function isRedistributionValue(prs, { nominal, redistribution }) {
+	for (let pr in redistribution) {
+		const cur = prs[pr];
+
+		if (redistribution[pr] <= cur.max - cur.nominal) {
+			nominal -= redistribution[pr];
+			prs[pr].nominal += redistribution[pr];
+		}
+
+		if (nominal <= 0) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
 module.exports = (lines, BCC) => {
 	let result = [];
 	const paths = lines.reduce((p, line) => {
-		p.push(...convert(line));
+		p.push(convert(line));
 		return p;
 	}, []);
 
+	console.log(paths)
 
 	for (let vector of BCC) {
+		const Prs = cloneDeep(values);
+
 		const unavailableBlocks = vector
 			.filter(point => !point.isWork)
 			.map(point => point.block);
 
-		const availablePaths = paths.filter(path =>
-			!unavailableBlocks.some(block => path.includes(block))
+		const availablePaths = paths.map(line =>
+			line.filter(path =>
+				!unavailableBlocks.some(block => path.includes(block))
+			)
 		);
 
-		// TODO: when module is not work needing to separate powerful
-		// result = result.concat(availablePaths);
+		const unavailablePrs = unavailableBlocks.filter(block => Prs[block]);
+
+		const isWorkPrs = unavailablePrs.every(pr =>
+			isRedistributionValue(Prs, {
+				nominal: Prs[pr].nominal,
+				redistribution: omit(Prs[pr].redistribution, unavailablePrs),
+			})
+		);
+
+
+		const isWork = isWorkPrs && availablePaths.every(path => path.length !== 0)
+
+		console.log({isWork, unavailableBlocks})
 	}
 
 	return result;
