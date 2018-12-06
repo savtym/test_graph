@@ -31,6 +31,15 @@ const schema = [
 	['D5', 'D7', 'D8', 'C5', 'B4', ['Pr4', 'Pr5']]
 ];
 
+const probabilityOfFailure = {
+	Pr: 2.2 * Math.pow(10, -4),
+	A: 2.2 * Math.pow(10, -4),
+	B: 1.1 * Math.pow(10, -5),
+	C: 2.1 * Math.pow(10, -4),
+	D: 4.4 * Math.pow(10, -5),
+	M: 5.3 * Math.pow(10, -4),
+};
+
 const values = {
 	Pr1: {
 		nominal: 50,
@@ -84,4 +93,5 @@ module.exports = {
 	schema,
 	values,
 	blocks,
+	probabilityOfFailure,
 };

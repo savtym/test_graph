@@ -9,7 +9,6 @@ module.exports = (l, n) => {
 			Array.from({ length }, (_, j) => i !== j)
 		);
 
-
 	const result = [];
 	const length = n === 1 ? 1 : l;
 

@@ -1,5 +1,6 @@
 const { flatten, cloneDeep, omit } = require('lodash');
 const { values } = require('../data');
+const { getUnavailableBlocks } = require('./common');
 
 const isSingle = tide => tide.every(block => !Array.isArray(block));
 const isProcessor = path => Array.isArray(path) &&
@@ -73,21 +74,17 @@ function isRedistributionValue(prs, { nominal, redistribution }) {
 }
 
 
-module.exports = (lines, BCC) => {
+module.exports = (lines, BCC, infoBlocks) => {
 	let result = [];
 	const paths = lines.reduce((p, line) => {
 		p.push(convert(line));
 		return p;
 	}, []);
 
-	console.log(paths)
-
 	for (let vector of BCC) {
 		const Prs = cloneDeep(values);
 
-		const unavailableBlocks = vector
-			.filter(point => !point.isWork)
-			.map(point => point.block);
+		const unavailableBlocks = getUnavailableBlocks(vector);
 
 		const availablePaths = paths.map(line =>
 			line.filter(path =>
@@ -104,10 +101,18 @@ module.exports = (lines, BCC) => {
 			})
 		);
 
+		const isWork = isWorkPrs && availablePaths.every(path => path.length !== 0);
 
-		const isWork = isWorkPrs && availablePaths.every(path => path.length !== 0)
+		if (!isWork) {
+			unavailableBlocks.forEach(block => {
+				infoBlocks[block] += 1;
+			});
+		}
 
-		console.log({isWork, unavailableBlocks})
+		result.push({
+			isWork,
+			unavailableBlocks,
+		});
 	}
 
 	return result;
