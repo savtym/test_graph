@@ -1,37 +1,45 @@
 
-const { union } = require('lodash');
+// const result = [];
+// const length = Math.pow(2, 4);
+//
+// for (let i = 1; i < length; i++) {
+// 	const buf = (i).toString(2).padStart(4, '0');
+// 	const found = buf.match(/([^1])/g);
+//
+// 	// when block is broken
+// 	if (found && found.length === 2) {
+// 		console.log(found , buf)
+// 		result.push(
+// 			[...buf].map(block => block === '1'),
+// 		);
+// 	}
+// }
+//
+// console.log(result, result.length)
 
 
-module.exports = (l, n) => {
 
-	const getSquare = length =>
-		Array.from({ length }, (_, i) =>
-			Array.from({ length }, (_, j) => i !== j)
-		);
+
+module.exports = (broken, n) => {
 
 	const result = [];
-	const length = n === 1 ? 1 : l;
+	const length = Math.pow(2, n);
 
-	for (let i = n - 1; i < length; i++) {
-		const square = getSquare(l - i);
+	for (let i = 1; i < length; i++) {
+		const buf = (i).toString(2).padStart(n, '0');
+		const found = buf.match(/([^1])/g);
 
-		const leftSide = Array.from({ length: l - i }, () =>
-			Array
-				.from({ length: i }, (_, index) => !(index < n - 1))
-				.reverse()
-		);
-
-		result.push(
-			leftSide.map((row, index) =>
-				row.concat(square[index])
-			)
-		);
+		// when block is broken
+		if (found && found.length === broken) {
+			result.push(
+				[...buf].map(block => block === '1'),
+			);
+		}
 	}
 
 	console.log(
-		`combinations { blocks: ${l}, broken: ${n} }: `,
-		result.reduce((p, n) => p + n.length, 0)
+		`Combinations : ${result.length}`,
 	);
 
-	return union(...result);
+	return result;
 };
