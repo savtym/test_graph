@@ -109,10 +109,11 @@ module.exports = (lines, BCC, infoBlocks) => {
 			});
 		}
 
-		result.push({
+		result.push(Object.assign({
 			isWork,
+			isWorkPrs,
 			unavailableBlocks,
-		});
+		}));
 	}
 
 	return result;

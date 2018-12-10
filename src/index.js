@@ -5,6 +5,8 @@ const {
 	probabilityOfFailure,
 } = require('./data');
 
+const { uniq } = require('lodash');
+
 const combinations = require('./utils/combinations');
 const conditionLine = require('./utils/conditionLine');
 
@@ -52,32 +54,39 @@ for (let i = 1; i <= 4; i++) {
 
 	// get all combinations with blocks from schema
 	const localPaths = conditionLine(schema, BCCs, infoBlocks);
-	const localBroken = localPaths.filter(r => !r.isWork).length;
-
-	broken += localBroken;
-	counter += localPaths.length;
-
-	console.log(
-		`Scheme wasn't work ${localBroken} times`,
-	);
+	let localBroken = localPaths.filter(r => !r.isWork).length;
+	let localPathsLength = localPaths.length;
 
 	let localSum = 0;
 
 	if (multiplicity[i]) {
 		const { length } = BCCs;
 		const percent = multiplicity[i];
+		localBroken = parseInt(localBroken * percent);
+		localPathsLength = parseInt(localPathsLength * percent);
 
 		for (let i = 0; i < length; i += parseInt(percent * length)) {
-			localSum += getProbability(BCCs[i]);
+			if (!localPaths[i].isWork) {
+				localSum += getProbability(BCCs[i]);
+			}
 		}
 
 		localSum /= percent;
 	} else {
 		// get probability scheme with broken elements
-		for (let vector of BCCs) {
-			localSum += getProbability(vector);
+		for (let i = 0; i < BCCs.length; i++) {
+			if (!localPaths[i].isWork) {
+				localSum += getProbability(BCCs[i]);
+			}
 		}
 	}
+
+	console.log(
+		`Scheme wasn't work ${localBroken} times from ${localPathsLength}`,
+	);
+
+	broken += localBroken;
+	counter += localPathsLength;
 
 	sum += localSum;
 	console.log(
@@ -86,7 +95,7 @@ for (let i = 1; i <= 4; i++) {
 }
 
 console.log(
-	`\nScheme wasn't work for all cases: ${broken} from ${counter}`,
+	`\nScheme wasn't work for all cases: ${broken} times from ${counter}`,
 );
 
 console.log(
