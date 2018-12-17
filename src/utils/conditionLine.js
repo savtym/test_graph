@@ -74,7 +74,7 @@ function isRedistributionValue(prs, { nominal, redistribution }) {
 }
 
 
-module.exports = (lines, BCC, infoBlocks) => {
+module.exports = (lines, BCC) => {
 	let result = [];
 	const paths = lines.reduce((p, line) => {
 		p.push(convert(line));
@@ -101,13 +101,13 @@ module.exports = (lines, BCC, infoBlocks) => {
 			})
 		);
 
-		const isWork = isWorkPrs && availablePaths.every(path => path.length !== 0);
-
-		if (!isWork) {
-			unavailableBlocks.forEach(block => {
-				infoBlocks[block] += 1;
-			});
-		}
+		const isWork = availablePaths.every(path => path.length !== 0);
+		//
+		// if (!isWork) {
+		// 	unavailableBlocks.forEach(block => {
+		// 		infoBlocks[block] += 1;
+		// 	});
+		// }
 
 		result.push(Object.assign({
 			isWork,
