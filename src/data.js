@@ -8,8 +8,7 @@ const schemes = {
 	],
 	after: [
 		{
-			// after, changed canals
-			name: 'Changed canals',
+			name: 'Added one block',
 			scheme: [
 				['D2', ['C1', 'C2'], ['B1', 'B2'], ['Pr1', 'Pr2', 'Pr3', ['A1', 'M2', 'A3', 'B4', 'Pr5']]],
 				[['D2', 'D3'], 'C2', ['B1', 'B2'], ['Pr1', 'Pr2', 'Pr3']],
@@ -19,8 +18,7 @@ const schemes = {
 		},
 
 		{
-			// after, added one block
-			name: 'Added one block',
+			name: 'Changed canals',
 			scheme: [
 				// after, added one block
 				['D2', ['C1', 'C2'], ['B1', 'B2'], ['Pr1', 'Pr2', 'Pr3', ['A1', 'M2', 'A3', 'B4', 'Pr5']]],
